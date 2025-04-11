@@ -11,8 +11,8 @@ class DoctorController extends Controller
 {
     public function index()
     {
-        $doctors = Doctor::with('user')->paginate(20);  
-    
+        $doctors = Doctor::with('user')->latest()->paginate(20);  
+        
         return Inertia::render('Doctors/Index', [
             'doctors' => $doctors,
         ]);
@@ -20,7 +20,10 @@ class DoctorController extends Controller
 
     public function create()
     {
-        $users = User::select('id', 'name', 'email')->get();
+        $users = User::select('id', 'name', 'email')
+            ->where('role', '!=', 'doctor')
+            ->get();
+    
         return Inertia::render('Doctors/Create', ['users' => $users]);
     }
 
@@ -31,9 +34,13 @@ class DoctorController extends Controller
             'specialty' => 'required|string|max:255',
             'phone' => 'required|string|max:20',
         ]);
-
-        Doctor::create($validated);
-
+    
+        $doctor = Doctor::create($validated);
+    
+        $user = User::findOrFail($validated['user_id']);
+       
+        $user->update(['role' => 'doctor']);
+    
         return redirect()->route('doctors.index')->with('success', 'Doctor created successfully.');
     }
     
