@@ -41,6 +41,16 @@ class DoctorController extends Controller
 
         return redirect()->route('doctors.index')->with('success', 'Doctor created successfully.');
     }
+    
+    public function edit($id)
+    {
+        $doctor = Doctor::findOrFail($id); 
+        
+        return Inertia::render('Doctors/Edit', [
+            'doctor' => $doctor,
+            'users' => User::all(),
+        ]);
+    }
 
     public function update(Request $request, $id)
     {

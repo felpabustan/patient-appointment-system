@@ -6,6 +6,13 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Table, TableHead, TableHeader, TableBody, TableRow, TableCell } from '@/components/ui/table'
 import { Button } from '@/components/ui/button'
 
+const breadcrumbs: BreadcrumbItem[] = [
+    {
+        title: 'Doctors',
+        href: '/doctors',
+    },
+];
+
 interface Doctor {
   id: number
   specialty: string
@@ -36,18 +43,22 @@ function goToPage(url: string | null) {
 function goToCreate() {
   router.visit('/doctors/create')
 }
+
+function goToEdit(id: number) {
+  router.visit(`/doctors/${id}/edit`)
+}
 </script>
 
 <template>
   <Head title="Doctors" />
 
-  <AppLayout>
+  <AppLayout :breadcrumbs="breadcrumbs">
     <div class="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
       <div class="relative min-h-[100vh] flex-1 rounded-xl border border-sidebar-border/70 dark:border-sidebar-border md:min-h-min">
         <Card>
-          <CardHeader>
+          <CardHeader class="flex items-center justify-between">
             <CardTitle>Doctors</CardTitle>
-            <Button @click="goToCreate" class="ml-auto">+ Create Doctor</Button>
+            <Button @click="goToCreate">+ Create Doctor</Button>
           </CardHeader>
           <CardContent>
             <Table>
@@ -56,6 +67,7 @@ function goToCreate() {
                   <TableHead>Name</TableHead>
                   <TableHead>Email</TableHead>
                   <TableHead>Specialty</TableHead>
+                  <TableHead class="text-right">Actions</TableHead> <!-- New column -->
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -63,6 +75,11 @@ function goToCreate() {
                   <TableCell>{{ doctor.user?.name ?? 'N/A' }}</TableCell>
                   <TableCell>{{ doctor.user?.email ?? 'N/A' }}</TableCell>
                   <TableCell>{{ doctor.specialty }}</TableCell>
+                  <TableCell class="text-right">
+                    <Button variant="outline" size="sm" @click="goToEdit(doctor.id)">
+                      Edit
+                    </Button>
+                  </TableCell>
                 </TableRow>
               </TableBody>
             </Table>
