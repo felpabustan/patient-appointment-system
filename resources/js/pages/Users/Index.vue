@@ -13,6 +13,14 @@ interface User {
   role: string
 }
 
+const props = defineProps<{
+  users: {
+    data: User[],
+    links: any[],
+    meta: any
+  }
+}>()
+
 // Pagination function to handle page navigation
 function goToPage(url: string | null) {
   if (url) {
