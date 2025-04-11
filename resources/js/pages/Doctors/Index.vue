@@ -4,6 +4,7 @@ import { Head, router } from '@inertiajs/vue3'
 import AppLayout from '@/layouts/AppLayout.vue'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Table, TableHead, TableHeader, TableBody, TableRow, TableCell } from '@/components/ui/table'
+import { Button } from '@/components/ui/button'
 
 interface Doctor {
   id: number
@@ -31,6 +32,10 @@ function goToPage(url: string | null) {
     router.visit(url)
   }
 }
+
+function goToCreate() {
+  router.visit('/doctors/create')
+}
 </script>
 
 <template>
@@ -42,6 +47,7 @@ function goToPage(url: string | null) {
         <Card>
           <CardHeader>
             <CardTitle>Doctors</CardTitle>
+            <Button @click="goToCreate" class="ml-auto">+ Create Doctor</Button>
           </CardHeader>
           <CardContent>
             <Table>

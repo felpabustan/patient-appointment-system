@@ -9,6 +9,8 @@ class DoctorProfile extends Model
 {
     use HasFactory;
 
+    protected $fillable = ['user_id', 'specialty', 'phone'];
+
     public function user()
     {
         return $this->belongsTo(User::class);

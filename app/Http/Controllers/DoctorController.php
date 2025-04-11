@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 use App\Models\DoctorProfile as Doctor;
 use Inertia\Inertia;
+use App\Models\User; 
 
 use Illuminate\Http\Request;
 
@@ -24,12 +25,21 @@ class DoctorController extends Controller
 
     public function create()
     {
-        // TODO: Logic to show form for creating a new doctor
+        $users = User::select('id', 'name', 'email')->get();
+        return Inertia::render('Doctors/Create', ['users' => $users]);
     }
 
     public function store(Request $request)
     {
-        // TODO: Logic to store a new doctor
+        $validated = $request->validate([
+            'user_id' => 'required|exists:users,id|unique:doctor_profiles,user_id',
+            'specialty' => 'required|string|max:255',
+            'phone' => 'required|string|max:20',
+        ]);
+
+        Doctor::create($validated);
+
+        return redirect()->route('doctors.index')->with('success', 'Doctor created successfully.');
     }
 
     public function update(Request $request, $id)
