@@ -67,7 +67,7 @@ function goToEdit(id: number) {
                   <TableHead>Name</TableHead>
                   <TableHead>Email</TableHead>
                   <TableHead>Specialty</TableHead>
-                  <TableHead class="text-right">Actions</TableHead> <!-- New column -->
+                  <TableHead class="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -84,7 +84,6 @@ function goToEdit(id: number) {
               </TableBody>
             </Table>
 
-            <!-- Pagination -->
             <div class="mt-4 flex flex-wrap gap-2">
               <button
                 v-for="link in doctors.links"

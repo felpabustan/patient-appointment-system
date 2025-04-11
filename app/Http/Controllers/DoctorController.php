@@ -18,11 +18,6 @@ class DoctorController extends Controller
         ]);
     }
 
-    public function show($id)
-    {
-        // TODO: Logic to retrieve doctor by ID
-    }
-
     public function create()
     {
         $users = User::select('id', 'name', 'email')->get();
@@ -54,6 +49,16 @@ class DoctorController extends Controller
 
     public function update(Request $request, $id)
     {
-        // TODO: Logic to update doctor by ID
+        $doctor = Doctor::findOrFail($id);
+
+        $validated = $request->validate([
+            'user_id' => 'required|exists:users,id|unique:doctor_profiles,user_id,' . $doctor->id,
+            'specialty' => 'required|string|max:255',
+            'phone' => 'required|string|max:20',
+        ]);
+    
+        $doctor->update($validated);
+    
+        return redirect()->route('doctors.index')->with('success', 'Doctor updated successfully.');
     }
 }
