@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { defineProps, defineEmits, computed } from 'vue'
+import { defineProps, defineEmits, computed, onMounted } from 'vue'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
@@ -33,14 +33,24 @@ function updateField(field: string, value: any) {
 const selectedUser = computed(() =>
   props.users.find(user => user.id === props.form.user_id)
 )
+
+const emailValue = computed(() => {
+  return selectedUser.value ? selectedUser.value.email : 'N/A'
+})
+
+onMounted(() => {
+  if (props.form.user_id === null && props.users.length > 0) {
+    updateField('user_id', null) // Ensure no user is selected initially
+  }
+})
 </script>
 
 <template>
   <form @submit.prevent="emit('submit')" class="space-y-6">
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
+      <div class="w-64">
         <Label for="user">User</Label>
-        <div class="mt-2 w-64">
+        <div class="mt-2">
           <Select
             :modelValue="form.user_id"
             @update:modelValue="value => updateField('user_id', value)"
@@ -49,6 +59,7 @@ const selectedUser = computed(() =>
               <SelectValue :placeholder="'Select a user'" />
             </SelectTrigger>
             <SelectContent>
+              <SelectItem :value="null" disabled>Select a user</SelectItem>
               <SelectItem
                 v-for="user in users"
                 :key="user.id"
@@ -61,9 +72,9 @@ const selectedUser = computed(() =>
         </div>
       </div>
 
-      <div v-if="selectedUser">
+      <div>
         <Label>Email</Label>
-        <Input :value="selectedUser.email" readonly class="mt-2" />
+        <Input :value="emailValue" readonly class="mt-2" />
       </div>
     </div>
 
