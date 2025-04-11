@@ -27,22 +27,17 @@ const props = defineProps<{
 const emit = defineEmits(['update:form', 'submit'])
 
 function updateField(field: string, value: any) {
-  emit('update:form', { ...props.form, [field]: value })
+  // Ensure user_id is always a number or null
+  const newValue = field === 'user_id' ? (value !== null ? Number(value) : null) : value
+  emit('update:form', { ...props.form, [field]: newValue })
 }
 
-const selectedUser = computed(() =>
-  props.users.find(user => user.id === props.form.user_id)
-)
-
-const emailValue = computed(() => {
-  return selectedUser.value ? selectedUser.value.email : 'N/A'
+const selectedUser = computed(() => {
+  const uid = Number(props.form.user_id)
+  return props.users.find(user => user.id === uid)
 })
 
-onMounted(() => {
-  if (props.form.user_id === null && props.users.length > 0) {
-    updateField('user_id', null) // Ensure no user is selected initially
-  }
-})
+const emailValue = computed(() => selectedUser.value?.email || '')
 </script>
 
 <template>
@@ -59,12 +54,7 @@ onMounted(() => {
               <SelectValue :placeholder="'Select a user'" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem :value="null" disabled>Select a user</SelectItem>
-              <SelectItem
-                v-for="user in users"
-                :key="user.id"
-                :value="user.id"
-              >
+              <SelectItem v-for="user in users" :key="user.id" :value="user.id">
                 {{ user.name }}
               </SelectItem>
             </SelectContent>
