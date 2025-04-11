@@ -16,19 +16,4 @@ class UserController extends Controller
             'users' => $users,
         ]);
     }
-
-    public function show($id)
-    {
-        // TODO: Logic to show user by ID
-    }
-
-    public function edit($id)
-    {
-        // TODO: Logic to edit user by ID
-    }
-
-    public function update(Request $request)
-    {
-        // TODO: Logic to update user
-    }
 }
