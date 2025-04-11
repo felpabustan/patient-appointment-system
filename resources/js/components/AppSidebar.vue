@@ -7,6 +7,10 @@ import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/vue3';
 import { BookOpen, Folder, LayoutGrid, Users } from 'lucide-vue-next';
 import AppLogo from './AppLogo.vue';
+import { usePage } from '@inertiajs/vue3';
+
+const { props } = usePage(); 
+const userRole = props.auth.user.role; 
 
 const mainNavItems: NavItem[] = [
     {
@@ -14,12 +18,16 @@ const mainNavItems: NavItem[] = [
         href: '/dashboard',
         icon: LayoutGrid,
     },
-
-    {
-        title: 'Users',
-        href: '/users',
-        icon: Users,
-    },
+    
+    ...(userRole === 'admin'
+        ? [
+            {
+                title: 'Users',
+                href: '/users',
+                icon: Users,
+            },
+        ]
+        : []),
 ];
 
 const footerNavItems: NavItem[] = [
