@@ -2,6 +2,7 @@
 import { defineProps } from 'vue'
 import { Head, router } from '@inertiajs/vue3'
 import AppLayout from '@/layouts/AppLayout.vue'
+import { type BreadcrumbItem } from '@/types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Table, TableHead, TableHeader, TableBody, TableRow, TableCell } from '@/components/ui/table'
 import { Button } from '@/components/ui/button'
@@ -47,6 +48,18 @@ function goToCreate() {
 function goToEdit(id: number) {
   router.visit(`/doctors/${id}/edit`)
 }
+
+function deleteDoctor(id: number) {
+  if (confirm('Are you sure you want to delete this doctor?')) {
+    router.delete(route('doctors.destroy', id), {
+      preserveScroll: true,
+      onSuccess: () => {
+        // Optional: show a toast or success alert here
+        console.log('Doctor deleted')
+      }
+    })
+  }
+}
 </script>
 
 <template>
@@ -78,6 +91,9 @@ function goToEdit(id: number) {
                   <TableCell class="text-right">
                     <Button variant="outline" size="sm" @click="goToEdit(doctor.id)">
                       Edit
+                    </Button>
+                    <Button variant="destructive" size="sm" @click="deleteDoctor(doctor.id)">
+                      Delete
                     </Button>
                   </TableCell>
                 </TableRow>
