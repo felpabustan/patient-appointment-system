@@ -1,8 +1,16 @@
 <script lang="ts" setup>
 import { Head, router } from '@inertiajs/vue3'
+import { type BreadcrumbItem } from '@/types';
 import AppLayout from '@/layouts/AppLayout.vue'
 import DoctorForm from './Partials/DoctorForm.vue'
 import { ref } from 'vue'
+
+const breadcrumbs: BreadcrumbItem[] = [
+    {
+        title: 'Add Doctor',
+        href: '/doctors/create',
+    },
+];
 
 interface User {
   id: number
@@ -28,9 +36,9 @@ function submit() {
 <template>
   <Head title="Create Doctor" />
 
-  <AppLayout>
+  <AppLayout :breadcrumbs="breadcrumbs">
     <div class="max-w-xl mx-auto p-6">
-      <h1 class="text-2xl font-bold mb-4">Create Doctor</h1>
+      <h1 class="text-2xl font-bold mb-4">Add Doctor</h1>
       <DoctorForm
         :form="form"
         :users="props.users"

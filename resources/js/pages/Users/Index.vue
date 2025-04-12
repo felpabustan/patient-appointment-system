@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { defineProps } from 'vue'
 import { Head } from '@inertiajs/vue3'
+import { type BreadcrumbItem } from '@/types';
 import AppLayout from '@/layouts/AppLayout.vue'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Table, TableHead, TableHeader, TableBody, TableRow, TableCell } from '@/components/ui/table'

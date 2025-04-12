@@ -71,7 +71,7 @@ function deleteDoctor(id: number) {
         <Card>
           <CardHeader class="flex items-center justify-between">
             <CardTitle>Doctors</CardTitle>
-            <Button @click="goToCreate">+ Create Doctor</Button>
+            <Button @click="goToCreate">Add Doctor</Button>
           </CardHeader>
           <CardContent>
             <Table>
