@@ -10,6 +10,8 @@ import {
   SelectContent,
   SelectTrigger,
   SelectValue,
+  SelectLabel,
+  SelectGroup
 } from '@/components/ui/select'
 
 const props = defineProps<{
