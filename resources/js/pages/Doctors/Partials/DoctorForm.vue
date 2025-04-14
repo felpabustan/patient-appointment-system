@@ -27,7 +27,6 @@ const props = defineProps<{
 const emit = defineEmits(['update:form', 'submit'])
 
 function updateField(field: string, value: any) {
-  // Ensure user_id is always a number or null
   const newValue = field === 'user_id' ? (value !== null ? Number(value) : null) : value
   emit('update:form', { ...props.form, [field]: newValue })
 }
@@ -64,7 +63,12 @@ const emailValue = computed(() => selectedUser.value?.email || '')
 
       <div>
         <Label>Email</Label>
-        <Input :value="emailValue" readonly class="mt-2" />
+        <Input
+          v-model="emailValue"
+          readonly
+          class="mt-2"
+          :placeholder="emailValue || 'No email available'"
+        />
       </div>
     </div>
 

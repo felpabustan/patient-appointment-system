@@ -23,6 +23,11 @@ interface Doctor {
   user_id: number | null
   specialty: string
   phone: string
+  user?: {
+    id: number
+    name: string
+    email: string
+  }
 }
 
 const props = defineProps<{
@@ -30,7 +35,14 @@ const props = defineProps<{
   doctor: Doctor
 }>()
 
-const form = ref({ ...props.doctor })
+const form = ref({
+  id: props.doctor.id,
+  user_id: props.doctor.user_id,
+  specialty: props.doctor.specialty,
+  phone: props.doctor.phone,
+  user: props.doctor.user
+})
+
 
 function submit() {
   router.put(`/doctors/${props.doctor.id}`, form.value)

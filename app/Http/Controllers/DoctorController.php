@@ -46,11 +46,16 @@ class DoctorController extends Controller
     
     public function edit($id)
     {
-        $doctor = Doctor::findOrFail($id); 
-        
+        $doctor = Doctor::with('user')->findOrFail($id);
+    
+        $users = User::select('id', 'name', 'email')
+            ->where('role', '!=', 'doctor')
+            ->orWhere('id', $doctor->user_id)
+            ->get();
+    
         return Inertia::render('Doctors/Edit', [
             'doctor' => $doctor,
-            'users' => User::all(),
+            'users' => $users,
         ]);
     }
 
