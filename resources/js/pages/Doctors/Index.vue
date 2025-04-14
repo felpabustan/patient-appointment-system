@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Table, TableHead, TableHeader, TableBody, TableRow, TableCell } from '@/components/ui/table'
 import { Button } from '@/components/ui/button'
 import { Pencil, Delete, UserPlus  } from 'lucide-vue-next';
+import { toast } from 'vue-sonner'
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -51,15 +52,38 @@ function goToEdit(id: number) {
 }
 
 function deleteDoctor(id: number) {
-  if (confirm('Are you sure you want to delete this doctor?')) {
-    router.delete(route('doctors.destroy', id), {
-      preserveScroll: true,
-      onSuccess: () => {
-        // Optional: show a toast or success alert here
-        console.log('Doctor deleted')
-      }
-    })
-  }
+  toast(
+    'Are you sure you want to delete this doctor?',
+    {
+      action: {
+        label: 'Delete',
+        onClick: () => {
+          router.delete(route('doctors.destroy', id), {
+            preserveScroll: true,
+            onSuccess: () => {
+              toast.dismiss()
+              toast.warning('Doctor deleted successfully')
+            },
+            onError: () => {
+              toast.dismiss()
+              toast.error('Failed to delete doctor', {
+                style: { background: 'red', color: 'white' },
+                action: {
+                  label: 'Try Again',
+                  onClick: () => deleteDoctor(id)
+                }
+              })
+            }
+          })
+        }
+      },
+      cancel: {
+        label: 'Cancel',
+        onClick: () => toast.dismiss()
+      },
+      duration: Infinity
+    }
+  )
 }
 </script>
 
