@@ -6,6 +6,7 @@ import { type BreadcrumbItem } from '@/types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Table, TableHead, TableHeader, TableBody, TableRow, TableCell } from '@/components/ui/table'
 import { Button } from '@/components/ui/button'
+import { Pencil, Delete, UserPlus  } from 'lucide-vue-next';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -71,7 +72,9 @@ function deleteDoctor(id: number) {
         <Card>
           <CardHeader class="flex items-center justify-between">
             <CardTitle>Doctors</CardTitle>
-            <Button @click="goToCreate">Add Doctor</Button>
+            <Button @click="goToCreate">
+              <UserPlus /> Add Doctor
+            </Button>
           </CardHeader>
           <CardContent>
             <Table>
@@ -89,11 +92,11 @@ function deleteDoctor(id: number) {
                   <TableCell>{{ doctor.user?.email ?? 'N/A' }}</TableCell>
                   <TableCell>{{ doctor.specialty }}</TableCell>
                   <TableCell class="text-right">
-                    <Button variant="outline" size="sm" @click="goToEdit(doctor.id)">
-                      Edit
+                    <Button variant="outline" size="sm" @click="goToEdit(doctor.id)" class="mx-2">
+                      <Pencil/> Edit
                     </Button>
                     <Button variant="destructive" size="sm" @click="deleteDoctor(doctor.id)">
-                      Delete
+                      <Delete /> Delete
                     </Button>
                   </TableCell>
                 </TableRow>
