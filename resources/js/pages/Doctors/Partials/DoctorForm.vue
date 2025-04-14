@@ -3,6 +3,7 @@ import { defineProps, defineEmits, computed, onMounted } from 'vue'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
+import { specialtyGroups } from '@/constants/specialties'
 import {
   Select,
   SelectItem,
@@ -75,12 +76,29 @@ const emailValue = computed(() => selectedUser.value?.email || '')
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
       <div>
         <Label for="specialty">Specialty</Label>
-        <Input
-          id="specialty"
-          v-model="form.specialty"
-          class="mt-2"
-          placeholder="Enter specialty"
-        />
+        <div class="mt-2">
+          <Select
+            :modelValue="form.specialty"
+            @update:modelValue="value => updateField('specialty', value)"
+          >
+            <SelectTrigger id="specialty" class="w-full">
+              <SelectValue :placeholder="'Select a specialty'" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup v-for="(specialties, group) in specialtyGroups" :key="group">
+                <SelectLabel class="pl-4 font-bold">{{ group }}</SelectLabel>
+                <SelectItem 
+                  v-for="specialty in specialties" 
+                  :key="specialty" 
+                  :value="specialty"
+                  class="pl-6"
+                >
+                  {{ specialty }}
+                </SelectItem>
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
       <div>
