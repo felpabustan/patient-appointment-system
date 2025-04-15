@@ -20,14 +20,16 @@ import { CalendarIcon } from 'lucide-vue-next'
 import { CalendarDate, getLocalTimeZone, parseDate, today } from '@internationalized/date'
 import { cn } from '@/lib/utils'
 
+interface PatientFormData {
+  user_id: number | null
+  gender: string
+  dob: string
+  phone: string
+  address: string
+}
+
 const props = defineProps<{
-  form: {
-    user_id: number | null
-    gender: string
-    dob: string
-    phone: string
-    address: string
-  }
+  form: PatientFormData
   users: Array<{
     id: number
     name: string
@@ -36,7 +38,7 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-  (e: 'update:form', value: typeof props.form): void
+  (e: 'update:form', value: PatientFormData): void
   (e: 'submit'): void
 }>()
 
