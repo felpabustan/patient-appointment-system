@@ -8,7 +8,7 @@ import { Table, TableHead, TableHeader, TableBody, TableRow, TableCell } from '@
 import { Button } from '@/components/ui/button'
 import { Pencil, Delete, CalendarPlus } from 'lucide-vue-next'
 import { toast } from 'vue-sonner'
-import { capitalizeFirstLetter } from '@/helpers'
+import { capitalizeFirstLetter, formatDateToLong } from '@/helpers'
 
 const breadcrumbs: BreadcrumbItem[] = [
   {
@@ -123,7 +123,7 @@ function deleteAppointment(id: number) {
               </TableHeader>
               <TableBody>
                 <TableRow v-for="appointment in appointments.data" :key="appointment.id">
-                  <TableCell>{{ appointment.date }}</TableCell>
+                  <TableCell>{{ formatDateToLong(appointment.date) }}</TableCell>
                   <TableCell>{{ appointment.time_slot }}</TableCell>
                   <TableCell>{{ appointment.doctor?.name ?? 'N/A' }}</TableCell>
                   <TableCell>{{ appointment.patient?.name ?? 'N/A' }}</TableCell>

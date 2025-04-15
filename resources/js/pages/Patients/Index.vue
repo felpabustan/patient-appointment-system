@@ -8,7 +8,7 @@ import { Table, TableHead, TableHeader, TableBody, TableRow, TableCell } from '@
 import { Button } from '@/components/ui/button'
 import { Pencil, Delete, UserPlus  } from 'lucide-vue-next';
 import { toast } from 'vue-sonner'
-import { capitalizeFirstLetter } from '@/helpers'
+import { capitalizeFirstLetter, formatDateToLong } from '@/helpers'
 
 const breadcrumbs: BreadcrumbItem[] = [
   {
@@ -106,7 +106,7 @@ function deletePatient(id: number) {
                   <TableHead>Name</TableHead>
                   <TableHead>Email</TableHead>
                   <TableHead>Gender</TableHead>
-                  <TableHead>DOB</TableHead>
+                  <TableHead>Date of Birth</TableHead>
                   <TableHead>Phone</TableHead>
                   <TableHead>Address</TableHead>
                   <TableHead class="text-right">Actions</TableHead>
@@ -117,7 +117,7 @@ function deletePatient(id: number) {
                   <TableCell>{{ patient.user?.name ?? 'N/A' }}</TableCell>
                   <TableCell>{{ patient.user?.email ?? 'N/A' }}</TableCell>
                   <TableCell>{{ capitalizeFirstLetter(patient.gender) }}</TableCell>
-                  <TableCell>{{ patient.dob }}</TableCell>
+                  <TableCell>{{ formatDateToLong(patient.dob) }}</TableCell>
                   <TableCell>{{ patient.phone }}</TableCell>
                   <TableCell>{{ patient.address }}</TableCell>
                   <TableCell class="text-right">
