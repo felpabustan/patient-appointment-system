@@ -2,11 +2,16 @@
 <script lang="ts" setup>
 import { Head, router } from '@inertiajs/vue3'
 import { toast } from 'vue-sonner'
-import { type BreadcrumbItem } from '@/types'
-import AppLayout from '@/layouts/AppLayout.vue'
-import AppointmentForm from './Partials/AppointmentForm.vue'
 import { ref } from 'vue'
 import { today, getLocalTimeZone } from '@internationalized/date'
+import AppLayout from '@/layouts/AppLayout.vue'
+import AppointmentForm from './Partials/AppointmentForm.vue'
+import type { 
+  BreadcrumbItem, 
+  User, 
+  AppointmentFormData,
+  ExistingAppointment 
+} from '@/types'
 
 const breadcrumbs: BreadcrumbItem[] = [
   {
@@ -19,32 +24,6 @@ const breadcrumbs: BreadcrumbItem[] = [
   },
 ]
 
-interface User {
-  id: number
-  name: string
-  email: string
-  role?: string
-}
-
-interface AppointmentFormData {
-  doctor_id: number | null
-  patient_id: number | null
-  date: string
-  time_slot: string
-  status: string
-  notes: string
-  doctor?: {
-    id: number
-    name: string
-    email: string
-  }
-  patient?: {
-    id: number
-    name: string
-    email: string
-  }
-}
-
 const props = defineProps<{
   doctors: User[]
   patients: User[]
@@ -52,12 +31,7 @@ const props = defineProps<{
   auth: {
     user: User
   }
-  existingAppointments: {
-    id?: number
-    doctor_id: number
-    date: string
-    time_slot: string
-  }[]
+  existingAppointments: ExistingAppointment[]
 }>()
 
 // Get today's date in YYYY-MM-DD format

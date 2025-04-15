@@ -2,39 +2,22 @@
 import { defineProps } from 'vue'
 import { Head, router } from '@inertiajs/vue3'
 import AppLayout from '@/layouts/AppLayout.vue'
-import { type BreadcrumbItem } from '@/types';
+import { type BreadcrumbItem, type DoctorListResponse } from '@/types'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Table, TableHead, TableHeader, TableBody, TableRow, TableCell } from '@/components/ui/table'
 import { Button } from '@/components/ui/button'
-import { Pencil, Delete, UserPlus  } from 'lucide-vue-next';
+import { Pencil, Delete, UserPlus } from 'lucide-vue-next'
 import { toast } from 'vue-sonner'
 
 const breadcrumbs: BreadcrumbItem[] = [
-    {
-        title: 'Doctors',
-        href: '/doctors',
-    },
-];
-
-interface Doctor {
-  id: number
-  specialty: string
-  user: {
-    name: string
-    email: string
-  }
-}
+  {
+    title: 'Doctors',
+    href: '/doctors',
+  },
+]
 
 const props = defineProps<{
-  doctors: {
-    data: Doctor[]
-    links: Array<{
-      url: string | null
-      label: string
-      active: boolean
-    }>
-    meta: any
-  }
+  doctors: DoctorListResponse
 }>()
 
 function goToPage(url: string | null) {
@@ -97,7 +80,7 @@ function deleteDoctor(id: number) {
           <CardHeader class="flex items-center justify-between">
             <CardTitle>Doctors</CardTitle>
             <Button @click="goToCreate">
-              <UserPlus /> Add Doctor
+              <UserPlus class="mr-2" /> Add Doctor
             </Button>
           </CardHeader>
           <CardContent>
@@ -107,6 +90,7 @@ function deleteDoctor(id: number) {
                   <TableHead>Name</TableHead>
                   <TableHead>Email</TableHead>
                   <TableHead>Specialty</TableHead>
+                  <TableHead>Phone</TableHead>
                   <TableHead class="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
@@ -115,12 +99,13 @@ function deleteDoctor(id: number) {
                   <TableCell>{{ doctor.user?.name ?? 'N/A' }}</TableCell>
                   <TableCell>{{ doctor.user?.email ?? 'N/A' }}</TableCell>
                   <TableCell>{{ doctor.specialty }}</TableCell>
+                  <TableCell>{{ doctor.phone }}</TableCell>
                   <TableCell class="text-right">
                     <Button variant="outline" size="sm" @click="goToEdit(doctor.id)" class="mx-2">
-                      <Pencil/> Edit
+                      <Pencil class="mr-2" /> Edit
                     </Button>
                     <Button variant="destructive" size="sm" @click="deleteDoctor(doctor.id)">
-                      <Delete /> Delete
+                      <Delete class="mr-2" /> Delete
                     </Button>
                   </TableCell>
                 </TableRow>

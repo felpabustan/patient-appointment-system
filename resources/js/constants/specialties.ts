@@ -32,7 +32,10 @@ export const specialtyGroups = {
       'Radiology',
       'Urology',
     ],
-  } as const
-  
-  // Helper type for getting all specialties as a union type
-  export type Specialty = typeof specialtyGroups[keyof typeof specialtyGroups][number]
+} as const
+
+// Helper type for getting all specialties as a union type
+export type Specialty = typeof specialtyGroups[keyof typeof specialtyGroups][number]
+
+// Helper type for specialty groups
+export type SpecialtyGroup = keyof typeof specialtyGroups

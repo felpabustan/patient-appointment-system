@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { defineProps, defineEmits, computed, ref } from 'vue'
+import { computed, ref } from 'vue'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
@@ -26,40 +26,26 @@ import {
 import { Calendar } from '@/components/ui/calendar'
 import { CalendarDate, parseDate, today, getLocalTimeZone } from '@internationalized/date'
 import { cn } from '@/lib/utils'
+import { type User, type PatientFormData } from '@/types'
 
-interface PatientFormData {
-  id?: number
-  user_id: number | null
-  gender: string
-  dob: string
-  phone: string
-  address: string
-  user?: {
-    id: number
-    name: string
-    email: string
-  }
+interface Props {
+  form: PatientFormData
+  users: User[]
 }
 
-const props = defineProps<{
-  form: PatientFormData
-  users: Array<{
-    id: number
-    name: string
-    email: string
-  }>
-}>()
-
-const emit = defineEmits<{
+interface Emits {
   (e: 'update:form', value: PatientFormData): void
   (e: 'submit'): void
-}>()
-
-function updateField(field: string, value: any) {
-  const newValue = field === 'user_id' ? (value !== null ? Number(value) : null) : value
-  emit('update:form', { ...props.form, [field]: newValue })
 }
 
+const props = defineProps<Props>()
+const emit = defineEmits<Emits>()
+
+// Form state
+const openUser = ref(false)
+const userSearch = ref('')
+
+// Computed properties
 const selectedUser = computed(() => {
   const uid = Number(props.form.user_id)
   return props.users.find(user => user.id === uid)
@@ -67,16 +53,15 @@ const selectedUser = computed(() => {
 
 const emailValue = computed(() => selectedUser.value?.email || '')
 
-const formatDate = (date: CalendarDate | undefined) => {
-  if (!date) return 'Pick a date'
-  try {
-    // Format as YYYY-MM-DD
-    return `${date.year}-${String(date.month).padStart(2, '0')}-${String(date.day).padStart(2, '0')}`
-  } catch (e) {
-    console.warn('Date formatting error:', e)
-    return 'Pick a date'
-  }
-}
+const filteredUsers = computed(() => {
+  if (!userSearch.value) return props.users
+  
+  const search = userSearch.value.toLowerCase()
+  return props.users.filter(user => 
+    user.name.toLowerCase().includes(search) || 
+    user.email.toLowerCase().includes(search)
+  )
+})
 
 const dobValue = computed({
   get: () => {
@@ -88,7 +73,7 @@ const dobValue = computed({
       return undefined
     }
   },
-  set: (val) => {
+  set: (val: CalendarDate | undefined) => {
     emit('update:form', { 
       ...props.form, 
       dob: val ? formatDate(val) : '' 
@@ -96,21 +81,26 @@ const dobValue = computed({
   }
 })
 
-const openUser = ref(false)
-const userSearch = ref('')
-const filteredUsers = computed(() => {
-  if (!userSearch.value) return props.users
-  
-  const search = userSearch.value.toLowerCase()
-  return props.users.filter(user => 
-    user.name.toLowerCase().includes(search) || 
-    user.email.toLowerCase().includes(search)
-  )
-})
+// Helper functions
+function updateField(field: keyof PatientFormData, value: any): void {
+  const newValue = field === 'user_id' ? (value !== null ? Number(value) : null) : value
+  emit('update:form', { ...props.form, [field]: newValue })
+}
+
+function formatDate(date: CalendarDate | undefined): string {
+  if (!date) return ''
+  try {
+    return `${date.year}-${String(date.month).padStart(2, '0')}-${String(date.day).padStart(2, '0')}`
+  } catch (e) {
+    console.warn('Date formatting error:', e)
+    return ''
+  }
+}
 </script>
 
 <template>
   <form @submit.prevent="emit('submit')" class="space-y-6">
+    <!-- User Selection and Email -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
       <div>
         <Label for="user">User</Label>
@@ -177,6 +167,7 @@ const filteredUsers = computed(() => {
       </div>
     </div>
 
+    <!-- Date of Birth and Gender -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
       <div>
         <Label for="dob">Date of Birth</Label>
@@ -208,18 +199,6 @@ const filteredUsers = computed(() => {
       </div>
 
       <div>
-        <Label for="phone">Phone</Label>
-        <Input
-          id="phone"
-          v-model="form.phone"
-          class="mt-2"
-          placeholder="Enter phone"
-        />
-      </div>
-    </div>
-
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div>
         <Label for="gender">Gender</Label>
         <div class="mt-2">
           <Select
@@ -238,6 +217,19 @@ const filteredUsers = computed(() => {
           </Select>
         </div>
       </div>
+    </div>
+
+    <!-- Phone and Address -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <Label for="phone">Phone</Label>
+        <Input
+          id="phone"
+          v-model="form.phone"
+          class="mt-2"
+          placeholder="Enter phone number"
+        />
+      </div>
 
       <div>
         <Label for="address">Address</Label>
@@ -250,6 +242,7 @@ const filteredUsers = computed(() => {
       </div>
     </div>
 
+    <!-- Submit Button -->
     <div>
       <Button type="submit">Submit</Button>
     </div>

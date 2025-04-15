@@ -1,12 +1,11 @@
 <script lang="ts" setup>
-import { defineProps } from 'vue'
 import { Head, router } from '@inertiajs/vue3'
 import AppLayout from '@/layouts/AppLayout.vue'
-import { type BreadcrumbItem } from '@/types';
+import { type BreadcrumbItem, type Patient } from '@/types'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Table, TableHead, TableHeader, TableBody, TableRow, TableCell } from '@/components/ui/table'
 import { Button } from '@/components/ui/button'
-import { Pencil, Delete, UserPlus  } from 'lucide-vue-next';
+import { Pencil, Delete, UserPlus } from 'lucide-vue-next'
 import { toast } from 'vue-sonner'
 import { capitalizeFirstLetter, formatDateToLong } from '@/helpers'
 
@@ -17,71 +16,76 @@ const breadcrumbs: BreadcrumbItem[] = [
   },
 ]
 
-interface Patient {
-  id: number
-  dob: string
-  gender: string
-  address: string
-  phone: string
-  user: {
-    name: string
-    email: string
-  }
-}
-
-const props = defineProps<{
-  patients: {
-    data: Patient[]
+interface PaginatedPatients {
+  data: Patient[]
+  links: Array<{
+    url: string | null
+    label: string
+    active: boolean
+  }>
+  meta: {
+    current_page: number
+    from: number
+    last_page: number
     links: Array<{
       url: string | null
       label: string
       active: boolean
     }>
-    meta: any
+    path: string
+    per_page: number
+    to: number
+    total: number
   }
+}
+
+const props = defineProps<{
+  patients: PaginatedPatients
 }>()
 
-function goToPage(url: string | null) {
+function goToPage(url: string | null): void {
   if (url) router.visit(url)
 }
 
-function goToCreate() {
+function goToCreate(): void {
   router.visit('/patients/create')
 }
 
-function goToEdit(id: number) {
+function goToEdit(id: number): void {
   router.visit(`/patients/${id}/edit`)
 }
 
-function deletePatient(id: number) {
+function deletePatient(id: number): void {
   toast('Are you sure you want to delete patient profile', {
     action: {
       label: 'Delete',
-      onClick: () => {
-        router.delete(route('patients.destroy', id), {
-          preserveScroll: true,
-          onSuccess: () => {
-            toast.dismiss()
-            toast.warning('Patient profile deleted')
-          },
-          onError: () => {
-            toast.dismiss()
-            toast.error('Failed to delete patient profile', {
-              style: { background: 'red', color: 'white' },
-              action: {
-                label: 'Try Again',
-                onClick: () => deletePatient(id)
-              }
-            })
-          }
-        })
-      }
+      onClick: () => handleDelete(id)
     },
     cancel: {
       label: 'Cancel',
       onClick: () => toast.dismiss()
     },
     duration: Infinity
+  })
+}
+
+function handleDelete(id: number): void {
+  router.delete(route('patients.destroy', id), {
+    preserveScroll: true,
+    onSuccess: () => {
+      toast.dismiss()
+      toast.warning('Patient profile deleted')
+    },
+    onError: () => {
+      toast.dismiss()
+      toast.error('Failed to delete patient profile', {
+        style: { background: 'red', color: 'white' },
+        action: {
+          label: 'Try Again',
+          onClick: () => deletePatient(id)
+        }
+      })
+    }
   })
 }
 </script>
@@ -96,7 +100,7 @@ function deletePatient(id: number) {
           <CardHeader class="flex items-center justify-between">
             <CardTitle>Patients</CardTitle>
             <Button @click="goToCreate">
-              <UserPlus /> Add Patient
+              <UserPlus class="mr-2" /> Add Patient
             </Button>
           </CardHeader>
           <CardContent>
@@ -121,11 +125,20 @@ function deletePatient(id: number) {
                   <TableCell>{{ patient.phone }}</TableCell>
                   <TableCell>{{ patient.address }}</TableCell>
                   <TableCell class="text-right">
-                    <Button variant="outline" size="sm" @click="goToEdit(patient.id)" class="mx-2">
-                      <Pencil /> Edit
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      @click="goToEdit(patient.id)" 
+                      class="mx-2"
+                    >
+                      <Pencil class="mr-2" /> Edit
                     </Button>
-                    <Button variant="destructive" size="sm" @click="deletePatient(patient.id)">
-                      <Delete /> Delete
+                    <Button 
+                      variant="destructive" 
+                      size="sm" 
+                      @click="deletePatient(patient.id)"
+                    >
+                      <Delete class="mr-2" /> Delete
                     </Button>
                   </TableCell>
                 </TableRow>
@@ -139,7 +152,7 @@ function deletePatient(id: number) {
                 :disabled="!link.url"
                 @click="goToPage(link.url)"
                 v-html="link.label"
-                class="px-3 py-1 rounded border text-sm"
+                class="rounded border px-3 py-1 text-sm"
                 :class="{
                   'bg-gray-300 dark:bg-gray-700': link.active,
                   'text-gray-500 cursor-not-allowed': !link.url,

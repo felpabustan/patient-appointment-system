@@ -36,52 +36,20 @@ import {
   CalendarDateTime,
   ZonedDateTime
 } from '@internationalized/date'
-
-interface AppointmentFormData {
-  id?: number
-  doctor_id: number | null
-  patient_id: number | null
-  date: string
-  time_slot: string
-  status: string
-  notes: string
-  doctor?: {
-    id: number
-    name: string
-    email: string
-  }
-  patient?: {
-    id: number
-    name: string
-    email: string
-  }
-}
-
-interface User {
-  id: number
-  name: string
-  email: string
-}
+import type { 
+  User, 
+  AppointmentFormData, 
+  ExistingAppointment,
+  AppointmentDisabledFields 
+} from '@/types'
 
 const props = withDefaults(defineProps<{
   form: AppointmentFormData
   doctors: User[]
   patients: User[]
   statuses: string[]
-  disabledFields: {
-    doctor: boolean
-    patient: boolean
-    date: boolean
-    timeSlot: boolean
-    status: boolean
-    notes: boolean
-  }
-  existingAppointments: {
-    id?: number
-    doctor_id: number
-    date: string
-    time_slot: string
-  }[]
+  disabledFields: AppointmentDisabledFields
+  existingAppointments: ExistingAppointment[]
 }>(), {
   existingAppointments: () => []
 })
@@ -96,7 +64,7 @@ const timeSlots = [
   '14:00', '14:30', '15:00', '15:30', '16:00', '16:30'
 ]
 
-function updateField(field: string, value: any) {
+function updateField(field: keyof AppointmentFormData, value: any) {
   const newValue = ['doctor_id', 'patient_id'].includes(field) 
     ? (value !== null ? Number(value) : null) 
     : value

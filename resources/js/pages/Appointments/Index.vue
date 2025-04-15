@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button'
 import { Pencil, Delete, CalendarPlus } from 'lucide-vue-next'
 import { toast } from 'vue-sonner'
 import { capitalizeFirstLetter, formatDateToLong } from '@/helpers'
+import type { Appointment, AppointmentListResponse } from '@/types'
 
 const breadcrumbs: BreadcrumbItem[] = [
   {
@@ -17,32 +18,8 @@ const breadcrumbs: BreadcrumbItem[] = [
   },
 ]
 
-interface Appointment {
-  id: number
-  date: string
-  time_slot: string
-  status: 'pending' | 'confirmed' | 'completed' | 'cancelled'
-  notes: string | null
-  doctor: {
-    name: string
-    email: string
-  }
-  patient: {
-    name: string
-    email: string
-  }
-}
-
 const props = defineProps<{
-  appointments: {
-    data: Appointment[]
-    links: Array<{
-      url: string | null
-      label: string
-      active: boolean
-    }>
-    meta: any
-  }
+  appointments: AppointmentListResponse
 }>()
 
 function goToPage(url: string | null) {

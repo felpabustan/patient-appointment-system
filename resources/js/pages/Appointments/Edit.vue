@@ -1,11 +1,17 @@
 <script lang="ts" setup>
 import { Head, router } from '@inertiajs/vue3'
 import { toast } from 'vue-sonner'
-import { type BreadcrumbItem } from '@/types'
-import AppLayout from '@/layouts/AppLayout.vue'
-import AppointmentForm from './Partials/AppointmentForm.vue'
 import { ref, computed } from 'vue'
 import { today, getLocalTimeZone, parseDate } from '@internationalized/date'
+import AppLayout from '@/layouts/AppLayout.vue'
+import AppointmentForm from './Partials/AppointmentForm.vue'
+import type { 
+  BreadcrumbItem, 
+  User, 
+  AppointmentFormData,
+  ExistingAppointment,
+  AppointmentDisabledFields 
+} from '@/types'
 
 const breadcrumbs: BreadcrumbItem[] = [
   {
@@ -18,44 +24,13 @@ const breadcrumbs: BreadcrumbItem[] = [
   },
 ]
 
-interface User {
-  id: number
-  name: string
-  email: string
-}
-
-interface AppointmentFormData {
-  id?: number
-  doctor_id: number | null
-  patient_id: number | null
-  date: string
-  time_slot: string
-  status: string
-  notes: string
-  doctor?: {
-    id: number
-    name: string
-    email: string
-  }
-  patient?: {
-    id: number
-    name: string
-    email: string
-  }
-}
-
 const props = defineProps<{
   doctors: User[]
   patients: User[]
   statuses: string[]
   appointment: AppointmentFormData
   userRole: string
-  existingAppointments: {
-    id?: number
-    doctor_id: number
-    date: string
-    time_slot: string
-  }[]
+  existingAppointments: ExistingAppointment[]
 }>()
 
 // Function to ensure date is not in the past
@@ -77,7 +52,7 @@ function ensureValidDate(dateStr: string): string {
 }
 
 // Function to determine which fields should be disabled
-const disabledFields = computed(() => {
+const disabledFields = computed<AppointmentDisabledFields>(() => {
   if (props.userRole === 'doctor') {
     return {
       doctor: true,
@@ -102,7 +77,7 @@ const form = ref<AppointmentFormData>({
   id: props.appointment.id,
   doctor_id: props.appointment.doctor_id,
   patient_id: props.appointment.patient_id,
-  date: ensureValidDate(props.appointment.date), // Ensure date is valid
+  date: ensureValidDate(props.appointment.date),
   time_slot: props.appointment.time_slot,
   status: props.appointment.status,
   notes: props.appointment.notes,

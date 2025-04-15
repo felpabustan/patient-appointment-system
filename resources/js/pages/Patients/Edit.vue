@@ -2,37 +2,21 @@
 <script lang="ts" setup>
 import { Head, router } from '@inertiajs/vue3'
 import { toast } from 'vue-sonner'
-import { type BreadcrumbItem } from '@/types'
+import { ref } from 'vue'
+import { type BreadcrumbItem, type User, type PatientFormData } from '@/types'
 import AppLayout from '@/layouts/AppLayout.vue'
 import PatientForm from './Partials/PatientForm.vue'
-import { ref } from 'vue'
 
 const breadcrumbs: BreadcrumbItem[] = [
   {
-    title: 'Edit Patient',
+    title: 'Patients',
     href: '/patients',
   },
+  {
+    title: 'Edit Patient',
+    href: '#',
+  },
 ]
-
-interface User {
-  id: number
-  name: string
-  email: string
-}
-
-interface PatientFormData {
-  id?: number
-  user_id: number | null
-  gender: string
-  dob: string
-  phone: string
-  address: string
-  user?: {
-    id: number
-    name: string
-    email: string
-  }
-}
 
 const props = defineProps<{
   users: User[]
@@ -72,8 +56,8 @@ function submit() {
       <h1 class="text-2xl font-bold mb-4">Edit Patient</h1>
       <PatientForm
         :form="form"
-        :users="props.users"
-        @update:form="form = $event"
+        :users="users"
+        @update:form="(newForm) => form = newForm"
         @submit="submit"
       />
     </div>

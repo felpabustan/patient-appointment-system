@@ -16,7 +16,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover'
-import { specialtyGroups } from '@/constants/specialties'
 import {
   Select,
   SelectItem,
@@ -26,24 +25,24 @@ import {
   SelectLabel,
   SelectGroup
 } from '@/components/ui/select'
+import { specialtyGroups } from '@/constants/specialties'
 import { cn } from '@/lib/utils'
+import type { User, DoctorFormData } from '@/types'
 
-const props = defineProps<{
-  form: {
-    user_id: number | null
-    specialty: string
-    phone: string
-  }
-  users: {
-    id: number
-    name: string
-    email: string
-  }[]
-}>()
+interface Props {
+  form: DoctorFormData
+  users: User[]
+}
 
-const emit = defineEmits(['update:form', 'submit'])
+interface Emits {
+  (e: 'update:form', value: DoctorFormData): void
+  (e: 'submit'): void
+}
 
-function updateField(field: string, value: any) {
+const props = defineProps<Props>()
+const emit = defineEmits<Emits>()
+
+function updateField(field: keyof DoctorFormData, value: any) {
   const newValue = field === 'user_id' ? (value !== null ? Number(value) : null) : value
   emit('update:form', { ...props.form, [field]: newValue })
 }
@@ -57,6 +56,7 @@ const emailValue = computed(() => selectedUser.value?.email || '')
 
 const openUser = ref(false)
 const userSearch = ref('')
+
 const filteredUsers = computed(() => {
   if (!userSearch.value) return props.users
   
