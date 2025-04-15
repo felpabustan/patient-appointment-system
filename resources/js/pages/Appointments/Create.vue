@@ -23,6 +23,7 @@ interface User {
   id: number
   name: string
   email: string
+  role?: string
 }
 
 interface AppointmentFormData {
@@ -48,19 +49,34 @@ const props = defineProps<{
   doctors: User[]
   patients: User[]
   statuses: string[]
+  auth: {
+    user: User
+  }
+  existingAppointments: {
+    id?: number
+    doctor_id: number
+    date: string
+    time_slot: string
+  }[]
 }>()
 
 // Get today's date in YYYY-MM-DD format
 const todayDate = today(getLocalTimeZone())
 const formattedToday = `${todayDate.year}-${String(todayDate.month).padStart(2, '0')}-${String(todayDate.day).padStart(2, '0')}`
 
+// Initialize form with doctor_id if user is a doctor
 const form = ref<AppointmentFormData>({
-  doctor_id: null,
+  doctor_id: props.auth.user.role === 'doctor' ? props.auth.user.id : null,
   patient_id: null,
   date: formattedToday,
   time_slot: '09:00',
   status: 'pending',
   notes: '',
+  doctor: props.auth.user.role === 'doctor' ? {
+    id: props.auth.user.id,
+    name: props.auth.user.name,
+    email: props.auth.user.email
+  } : undefined
 })
 
 function submit() {
@@ -89,6 +105,15 @@ function submit() {
         :doctors="doctors"
         :patients="patients"
         :statuses="statuses"
+        :disabled-fields="{
+          doctor: props.auth.user.role === 'doctor',
+          patient: false,
+          date: false,
+          timeSlot: false,
+          status: false,
+          notes: false
+        }"
+        :existing-appointments="existingAppointments"
         @update:form="form = $event"
         @submit="submit"
       />

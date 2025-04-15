@@ -4,7 +4,7 @@ import { toast } from 'vue-sonner'
 import { type BreadcrumbItem } from '@/types'
 import AppLayout from '@/layouts/AppLayout.vue'
 import AppointmentForm from './Partials/AppointmentForm.vue'
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { today, getLocalTimeZone, parseDate } from '@internationalized/date'
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -49,6 +49,13 @@ const props = defineProps<{
   patients: User[]
   statuses: string[]
   appointment: AppointmentFormData
+  userRole: string
+  existingAppointments: {
+    id?: number
+    doctor_id: number
+    date: string
+    time_slot: string
+  }[]
 }>()
 
 // Function to ensure date is not in the past
@@ -69,6 +76,28 @@ function ensureValidDate(dateStr: string): string {
   }
 }
 
+// Function to determine which fields should be disabled
+const disabledFields = computed(() => {
+  if (props.userRole === 'doctor') {
+    return {
+      doctor: true,
+      patient: true,
+      date: true,
+      timeSlot: true,
+      status: false,
+      notes: false
+    }
+  }
+  return {
+    doctor: false,
+    patient: false,
+    date: false,
+    timeSlot: false,
+    status: false,
+    notes: false
+  }
+})
+
 const form = ref<AppointmentFormData>({
   id: props.appointment.id,
   doctor_id: props.appointment.doctor_id,
@@ -82,7 +111,21 @@ const form = ref<AppointmentFormData>({
 })
 
 function submit() {
-  router.put(`/appointments/${props.appointment.id}`, form.value, {
+  // If user is a doctor, only send status and notes
+  const dataToSubmit = props.userRole === 'doctor' 
+    ? {
+        id: form.value.id,
+        status: form.value.status,
+        notes: form.value.notes,
+        // Include these to maintain the existing values
+        doctor_id: form.value.doctor_id,
+        patient_id: form.value.patient_id,
+        date: form.value.date,
+        time_slot: form.value.time_slot,
+      }
+    : form.value
+
+  router.put(`/appointments/${props.appointment.id}`, dataToSubmit, {
     onSuccess: () => {
       toast.success('Appointment updated successfully')
     },
@@ -107,6 +150,8 @@ function submit() {
         :doctors="doctors"
         :patients="patients"
         :statuses="statuses"
+        :disabled-fields="disabledFields"
+        :existing-appointments="existingAppointments"
         @update:form="form = $event"
         @submit="submit"
       />

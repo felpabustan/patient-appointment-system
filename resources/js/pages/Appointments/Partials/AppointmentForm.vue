@@ -1,9 +1,12 @@
-<script lang="ts" setup>
-import { defineProps, defineEmits, computed, ref } from 'vue'
+<script setup lang="ts">
+import { defineProps, defineEmits, computed, ref, withDefaults } from 'vue'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
+import { Calendar } from '@/components/ui/calendar'
+import { CalendarIcon } from 'lucide-vue-next'
+import { cn } from '@/lib/utils'
 import { Check, ChevronsUpDown, Search } from 'lucide-vue-next'
 import {
   Command,
@@ -24,10 +27,15 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover'
-import { Calendar } from '@/components/ui/calendar'
-import { CalendarIcon } from 'lucide-vue-next'
-import { CalendarDate, getLocalTimeZone, parseDate, today } from '@internationalized/date'
-import { cn } from '@/lib/utils'
+import { 
+  CalendarDate, 
+  getLocalTimeZone, 
+  parseDate, 
+  today, 
+  DateValue,
+  CalendarDateTime,
+  ZonedDateTime
+} from '@internationalized/date'
 
 interface AppointmentFormData {
   id?: number
@@ -55,12 +63,28 @@ interface User {
   email: string
 }
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
   form: AppointmentFormData
   doctors: User[]
   patients: User[]
   statuses: string[]
-}>()
+  disabledFields: {
+    doctor: boolean
+    patient: boolean
+    date: boolean
+    timeSlot: boolean
+    status: boolean
+    notes: boolean
+  }
+  existingAppointments: {
+    id?: number
+    doctor_id: number
+    date: string
+    time_slot: string
+  }[]
+}>(), {
+  existingAppointments: () => []
+})
 
 const emit = defineEmits<{
   (e: 'update:form', value: AppointmentFormData): void
@@ -139,6 +163,40 @@ const filteredPatients = computed(() => {
     patient.email.toLowerCase().includes(search)
   )
 })
+
+const isTimeSlotTaken = computed(() => (timeSlot: string) => {
+  if (!props.form.date || !props.form.doctor_id || !props.existingAppointments) return false
+  
+  return props.existingAppointments.some(apt => 
+    apt.doctor_id === props.form.doctor_id &&
+    apt.date === props.form.date &&
+    apt.time_slot === timeSlot &&
+    (!props.form.id || apt.id !== props.form.id)
+  )
+})
+
+const isDateFullyBooked = computed(() => (date: DateValue) => {
+  if (!props.form.doctor_id || !props.existingAppointments) return false
+  
+  let calendarDate: CalendarDate
+  if (date instanceof CalendarDate) {
+    calendarDate = date
+  } else if (date instanceof CalendarDateTime) {
+    calendarDate = new CalendarDate(date.year, date.month, date.day)
+  } else { // ZonedDateTime
+    calendarDate = new CalendarDate(date.year, date.month, date.day)
+  }
+  
+  const formattedDate = `${calendarDate.year}-${String(calendarDate.month).padStart(2, '0')}-${String(calendarDate.day).padStart(2, '0')}`
+  
+  const doctorAppointments = props.existingAppointments.filter(apt => 
+    apt.doctor_id === props.form.doctor_id &&
+    apt.date === formattedDate &&
+    (!props.form.id || apt.id !== props.form.id)
+  )
+  
+  return doctorAppointments.length >= timeSlots.length
+})
 </script>
 
 <template>
@@ -148,16 +206,20 @@ const filteredPatients = computed(() => {
       <div>
         <Label for="doctor">Doctor</Label>
         <div class="mt-2">
-          <Popover v-model:open="openDoctor">
+          <Popover v-model:open="openDoctor" :disabled="props.disabledFields.doctor">
             <PopoverTrigger as-child>
               <Button
                 variant="outline"
                 role="combobox"
                 :aria-expanded="openDoctor"
                 class="w-full justify-between"
+                :disabled="props.disabledFields.doctor"
               >
                 {{ selectedDoctor?.name ?? "Select doctor..." }}
-                <ChevronsUpDown class="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                <ChevronsUpDown 
+                  v-if="!props.disabledFields.doctor" 
+                  class="ml-2 h-4 w-4 shrink-0 opacity-50" 
+                />
               </Button>
             </PopoverTrigger>
             <PopoverContent class="w-full p-0">
@@ -202,10 +264,11 @@ const filteredPatients = computed(() => {
       <div>
         <Label>Doctor Email</Label>
         <Input
-          v-model="doctorEmail"
+          type="email"
+          :model-value="doctorEmail"
           readonly
+          disabled
           class="mt-2"
-          :placeholder="doctorEmail || 'No email available'"
         />
       </div>
     </div>
@@ -215,16 +278,20 @@ const filteredPatients = computed(() => {
       <div>
         <Label for="patient">Patient</Label>
         <div class="mt-2">
-          <Popover v-model:open="openPatient">
+          <Popover v-model:open="openPatient" :disabled="props.disabledFields.patient">
             <PopoverTrigger as-child>
               <Button
                 variant="outline"
                 role="combobox"
                 :aria-expanded="openPatient"
                 class="w-full justify-between"
+                :disabled="props.disabledFields.patient"
               >
                 {{ selectedPatient?.name ?? "Select patient..." }}
-                <ChevronsUpDown class="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                <ChevronsUpDown 
+                  v-if="!props.disabledFields.patient" 
+                  class="ml-2 h-4 w-4 shrink-0 opacity-50" 
+                />
               </Button>
             </PopoverTrigger>
             <PopoverContent class="w-full p-0">
@@ -269,10 +336,11 @@ const filteredPatients = computed(() => {
       <div>
         <Label>Patient Email</Label>
         <Input
-          v-model="patientEmail"
+          type="email"
+          :model-value="patientEmail"
           readonly
+          disabled
           class="mt-2"
-          :placeholder="patientEmail || 'No email available'"
         />
       </div>
     </div>
@@ -301,6 +369,7 @@ const filteredPatients = computed(() => {
                 calendar-label="Appointment date"
                 initial-focus
                 :min-value="today(getLocalTimeZone())"
+                :isDateUnavailable="isDateFullyBooked"
               />
             </PopoverContent>
           </Popover>
@@ -322,8 +391,14 @@ const filteredPatients = computed(() => {
                 v-for="time in timeSlots"
                 :key="time"
                 :value="time"
+                :disabled="isTimeSlotTaken(time)"
               >
-                {{ time }}
+                <span :class="{ 'opacity-50': isTimeSlotTaken(time) }">
+                  {{ time }}
+                  <span v-if="isTimeSlotTaken(time)" class="text-sm text-red-500 ml-2">
+                    (Taken)
+                  </span>
+                </span>
               </SelectItem>
             </SelectContent>
           </Select>

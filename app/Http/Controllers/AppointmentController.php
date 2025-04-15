@@ -36,10 +36,19 @@ class AppointmentController extends Controller
             ->select('id', 'name', 'email')
             ->get();
 
+        $existingAppointments = Appointment::select('id', 'doctor_id', 'date', 'time_slot')
+            ->where('status', '!=', 'cancelled')
+            ->where('date', '>=', now()->format('Y-m-d'))
+            ->get();
+
         return Inertia::render('Appointments/Create', [
             'doctors' => $doctors,
             'patients' => $patients,
-            'statuses' => ['pending', 'confirmed', 'completed', 'cancelled']
+            'statuses' => ['pending', 'confirmed', 'completed', 'cancelled'],
+            'auth' => [
+                'user' => auth()->user()
+            ],
+            'existingAppointments' => $existingAppointments
         ]);
     }
 
@@ -71,11 +80,8 @@ class AppointmentController extends Controller
         ]);
     }
 
-    public function edit($id)
+    public function edit(Appointment $appointment)
     {
-        $appointment = Appointment::with(['doctor', 'patient'])
-            ->findOrFail($id);
-
         $doctors = User::where('role', 'doctor')
             ->select('id', 'name', 'email')
             ->get();
@@ -84,26 +90,49 @@ class AppointmentController extends Controller
             ->select('id', 'name', 'email')
             ->get();
 
+        $existingAppointments = Appointment::select('id', 'doctor_id', 'date', 'time_slot')
+            ->where('id', '!=', $appointment->id)
+            ->where('status', '!=', 'cancelled')
+            ->where('date', '>=', now()->format('Y-m-d'))
+            ->get();
+
         return Inertia::render('Appointments/Edit', [
-            'appointment' => $appointment,
             'doctors' => $doctors,
             'patients' => $patients,
-            'statuses' => ['pending', 'confirmed', 'completed', 'cancelled']
+            'statuses' => ['pending', 'confirmed', 'completed', 'cancelled'],
+            'appointment' => $appointment->load(['doctor', 'patient']),
+            'existingAppointments' => $existingAppointments,
+            'userRole' => auth()->user()->role
         ]);
     }
 
     public function update(Request $request, $id)
     {
         $appointment = Appointment::findOrFail($id);
+        $user = auth()->user();
 
-        $validated = $request->validate([
-            'doctor_id' => 'required|exists:users,id',
-            'patient_id' => 'required|exists:users,id',
-            'date' => 'required|date|after_or_equal:today',
-            'time_slot' => 'required|string',
-            'status' => 'required|in:pending,confirmed,completed,cancelled',
-            'notes' => 'nullable|string|max:1000',
-        ]);
+        // If user is a doctor, only allow updating status and notes
+        if ($user->role === 'doctor') {
+            $validated = $request->validate([
+                'status' => 'required|in:pending,confirmed,completed,cancelled',
+                'notes' => 'nullable|string|max:1000',
+            ]);
+
+            // Merge with existing appointment data to maintain other fields
+            $validated = array_merge(
+                $appointment->only(['doctor_id', 'patient_id', 'date', 'time_slot']),
+                $validated
+            );
+        } else {
+            $validated = $request->validate([
+                'doctor_id' => 'required|exists:users,id',
+                'patient_id' => 'required|exists:users,id',
+                'date' => 'required|date|after_or_equal:today',
+                'time_slot' => 'required|string',
+                'status' => 'required|in:pending,confirmed,completed,cancelled',
+                'notes' => 'nullable|string|max:1000',
+            ]);
+        }
 
         $appointment->update($validated);
 
