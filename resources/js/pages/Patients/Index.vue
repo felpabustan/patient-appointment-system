@@ -8,6 +8,7 @@ import { Table, TableHead, TableHeader, TableBody, TableRow, TableCell } from '@
 import { Button } from '@/components/ui/button'
 import { Pencil, Delete, UserPlus  } from 'lucide-vue-next';
 import { toast } from 'vue-sonner'
+import { capitalizeFirstLetter } from '@/helpers'
 
 const breadcrumbs: BreadcrumbItem[] = [
   {
@@ -115,7 +116,7 @@ function deletePatient(id: number) {
                 <TableRow v-for="patient in patients.data" :key="patient.id">
                   <TableCell>{{ patient.user?.name ?? 'N/A' }}</TableCell>
                   <TableCell>{{ patient.user?.email ?? 'N/A' }}</TableCell>
-                  <TableCell>{{ patient.gender }}</TableCell>
+                  <TableCell>{{ capitalizeFirstLetter(patient.gender) }}</TableCell>
                   <TableCell>{{ patient.dob }}</TableCell>
                   <TableCell>{{ patient.phone }}</TableCell>
                   <TableCell>{{ patient.address }}</TableCell>
