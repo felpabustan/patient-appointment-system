@@ -76,6 +76,9 @@ php artisan serve
 
 # Run Vite development server
 npm run dev
+
+# or Run using this command
+composer run dev
 ```
 
 For SSR development:
@@ -155,8 +158,7 @@ This project is open-sourced software licensed under the [MIT license](https://o
 
 ## ✨ Credits
 
-- [Your Name]
-- [All Contributors]
+- Fel Pabustan
 
 ## 📝 Changelog
 
