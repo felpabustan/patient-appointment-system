@@ -4,7 +4,7 @@ import NavUser from '@/components/NavUser.vue';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/vue3';
-import { BookOpen, Folder, LayoutGrid, Users, BriefcaseMedical } from 'lucide-vue-next';
+import { LayoutGrid, Users, BriefcaseMedical, PersonStanding  } from 'lucide-vue-next';
 import AppLogo from './AppLogo.vue';
 import { usePage } from '@inertiajs/vue3';
 
@@ -30,6 +30,12 @@ const mainNavItems: NavItem[] = [
                 title: 'Doctors',
                 href: '/doctors',
                 icon: BriefcaseMedical,
+            },
+
+            {
+                title: 'Patients',
+                href: '/patients',
+                icon: PersonStanding,
             },
         ]
         : []),
