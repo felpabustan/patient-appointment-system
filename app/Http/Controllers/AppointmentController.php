@@ -6,6 +6,7 @@ use App\Models\Appointment;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Carbon\Carbon;
 
 class AppointmentController extends Controller
 {
@@ -106,15 +107,23 @@ class AppointmentController extends Controller
         ]);
     }
 
-    public function update(Request $request, $id)
+    public function update(Request $request, Appointment $appointment)
     {
-        $appointment = Appointment::findOrFail($id);
         $user = auth()->user();
 
         // If user is a doctor, only allow updating status and notes
         if ($user->role === 'doctor') {
             $validated = $request->validate([
-                'status' => 'required|in:' . implode(',', Appointment::getStatusOptions()),
+                'status' => [
+                    'required',
+                    'in:' . implode(',', Appointment::getStatusOptions()),
+                    function ($attribute, $value, $fail) use ($request) {
+                        if ($value === 'completed' && 
+                            Carbon::parse($request->date)->isAfter(now())) {
+                            $fail('Cannot mark future appointments as completed.');
+                        }
+                    },
+                ],
                 'notes' => 'nullable|string|max:1000',
             ]);
 
@@ -129,7 +138,16 @@ class AppointmentController extends Controller
                 'patient_id' => 'required|exists:users,id',
                 'date' => 'required|date|after_or_equal:today',
                 'time_slot' => 'required|string',
-                'status' => 'required|in:' . implode(',', Appointment::getStatusOptions()),
+                'status' => [
+                    'required',
+                    'in:' . implode(',', Appointment::getStatusOptions()),
+                    function ($attribute, $value, $fail) use ($request) {
+                        if ($value === 'completed' && 
+                            Carbon::parse($request->date)->isAfter(now())) {
+                            $fail('Cannot mark future appointments as completed.');
+                        }
+                    },
+                ],
                 'notes' => 'nullable|string|max:1000',
             ]);
         }

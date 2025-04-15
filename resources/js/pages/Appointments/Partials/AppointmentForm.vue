@@ -165,6 +165,28 @@ const isDateFullyBooked = computed(() => (date: DateValue) => {
   
   return doctorAppointments.length >= timeSlots.length
 })
+
+// Add this computed property to check if date is in the future
+const isDateInFuture = computed(() => {
+  if (!props.form.date) return false
+  try {
+    const appointmentDate = parseDate(props.form.date)
+    const todayDate = today(getLocalTimeZone())
+    return appointmentDate.compare(todayDate) > 0
+  } catch (e) {
+    return false
+  }
+})
+
+// Add this computed property to filter available statuses
+const availableStatuses = computed(() => {
+  return props.statuses.filter(status => {
+    if (status === 'completed' && isDateInFuture.value) {
+      return false
+    }
+    return true
+  })
+})
 </script>
 
 <template>
@@ -381,13 +403,14 @@ const isDateFullyBooked = computed(() => (date: DateValue) => {
         <Select
           :modelValue="form.status"
           @update:modelValue="value => updateField('status', value)"
+          :disabled="disabledFields.status"
         >
           <SelectTrigger id="status" class="w-full">
             <SelectValue placeholder="Select status" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem
-              v-for="status in statuses"
+              v-for="status in availableStatuses"
               :key="status"
               :value="status"
             >
