@@ -32,7 +32,7 @@ A modern web application built with Laravel and Vue.js for managing medical appo
 
 1. Clone the repository
 ```bash
-git clone https://github.com/yourusername/your-repo-name.git
+git clone hhttps://github.com/felpabustan/patient-appointment-system.git
 cd your-repo-name
 ```
 
