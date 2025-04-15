@@ -3,6 +3,19 @@ import { defineProps, defineEmits, computed, ref } from 'vue'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
+import { Check, ChevronsUpDown, Search, CalendarIcon } from 'lucide-vue-next'
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+} from '@/components/ui/command'
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover'
 import {
   Select,
   SelectContent,
@@ -10,14 +23,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import {
-  Popover,
-  PopoverTrigger,
-  PopoverContent,
-} from '@/components/ui/popover'
 import { Calendar } from '@/components/ui/calendar'
-import { CalendarIcon } from 'lucide-vue-next'
-import { CalendarDate, getLocalTimeZone, parseDate, today } from '@internationalized/date'
+import { CalendarDate, parseDate, today, getLocalTimeZone } from '@internationalized/date'
 import { cn } from '@/lib/utils'
 
 interface PatientFormData {
@@ -88,31 +95,74 @@ const dobValue = computed({
     })
   }
 })
+
+const openUser = ref(false)
+const userSearch = ref('')
+const filteredUsers = computed(() => {
+  if (!userSearch.value) return props.users
+  
+  const search = userSearch.value.toLowerCase()
+  return props.users.filter(user => 
+    user.name.toLowerCase().includes(search) || 
+    user.email.toLowerCase().includes(search)
+  )
+})
 </script>
 
 <template>
   <form @submit.prevent="emit('submit')" class="space-y-6">
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
-      <div class="w-64">
+      <div>
         <Label for="user">User</Label>
         <div class="mt-2">
-          <Select
-            :modelValue="form.user_id"
-            @update:modelValue="value => updateField('user_id', value)"
-          >
-            <SelectTrigger id="user" class="w-full">
-              <SelectValue :placeholder="'Select a user'" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem
-                v-for="user in users"
-                :key="user.id"
-                :value="user.id"
+          <Popover v-model:open="openUser">
+            <PopoverTrigger as-child>
+              <Button
+                variant="outline"
+                role="combobox"
+                :aria-expanded="openUser"
+                class="w-full justify-between"
               >
-                {{ user.name }}
-              </SelectItem>
-            </SelectContent>
-          </Select>
+                {{ selectedUser?.name ?? "Select user..." }}
+                <ChevronsUpDown class="ml-2 h-4 w-4 shrink-0 opacity-50" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent class="w-full p-0">
+              <Command>
+                <CommandInput 
+                  placeholder="Search user..." 
+                  v-model="userSearch"
+                  class="h-9"
+                >
+                  <Search class="mr-2 h-4 w-4" />
+                </CommandInput>
+                <CommandEmpty>No user found.</CommandEmpty>
+                <CommandGroup>
+                  <CommandItem
+                    v-for="user in filteredUsers"
+                    :key="user.id"
+                    :value="user.id.toString()"
+                    @select="() => {
+                      updateField('user_id', user.id)
+                      openUser = false
+                    }"
+                    class="cursor-pointer"
+                  >
+                    <Check
+                      :class="cn(
+                        'mr-2 h-4 w-4',
+                        selectedUser?.id === user.id ? 'opacity-100' : 'opacity-0'
+                      )"
+                    />
+                    <div class="flex flex-col">
+                      <span>{{ user.name }}</span>
+                      <span class="text-sm text-gray-500">{{ user.email }}</span>
+                    </div>
+                  </CommandItem>
+                </CommandGroup>
+              </Command>
+            </PopoverContent>
+          </Popover>
         </div>
       </div>
 
@@ -173,8 +223,8 @@ const dobValue = computed({
         <Label for="gender">Gender</Label>
         <div class="mt-2">
           <Select
-            :modelValue="form.gender"
-            @update:modelValue="value => updateField('gender', value)"
+            :model-value="form.gender"
+            @update:model-value="value => updateField('gender', value)"
             required
           >
             <SelectTrigger id="gender" class="w-full">
