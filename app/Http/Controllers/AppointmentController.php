@@ -10,6 +10,13 @@ use Carbon\Carbon;
 
 class AppointmentController extends Controller
 {
+    private array $statusOptions;
+
+    public function __construct()
+    {
+        $this->statusOptions = Appointment::getStatusOptions();
+    }
+
     public function index()
     {
         $user = auth()->user();
@@ -45,7 +52,7 @@ class AppointmentController extends Controller
         return Inertia::render('Appointments/Create', [
             'doctors' => $doctors,
             'patients' => $patients,
-            'statuses' => Appointment::getStatusOptions(),
+            'statuses' => $this->statusOptions,
             'auth' => [
                 'user' => auth()->user()
             ],
@@ -60,7 +67,7 @@ class AppointmentController extends Controller
             'patient_id' => 'required|exists:users,id',
             'date' => 'required|date|after_or_equal:today',
             'time_slot' => 'required|string',
-            'status' => 'required|in:' . implode(',', Appointment::getStatusOptions()),
+            'status' => 'required|in:' . implode(',', $this->statusOptions),
             'notes' => 'nullable|string|max:1000',
         ]);
 
@@ -100,7 +107,7 @@ class AppointmentController extends Controller
         return Inertia::render('Appointments/Edit', [
             'doctors' => $doctors,
             'patients' => $patients,
-            'statuses' => Appointment::getStatusOptions(),
+            'statuses' => $this->statusOptions,
             'appointment' => $appointment->load(['doctor', 'patient']),
             'existingAppointments' => $existingAppointments,
             'userRole' => auth()->user()->role
@@ -116,7 +123,7 @@ class AppointmentController extends Controller
             $validated = $request->validate([
                 'status' => [
                     'required',
-                    'in:' . implode(',', Appointment::getStatusOptions()),
+                    'in:' . implode(',', $this->statusOptions),
                     function ($attribute, $value, $fail) use ($request) {
                         if ($value === 'completed' && 
                             Carbon::parse($request->date)->isAfter(now())) {
@@ -140,7 +147,7 @@ class AppointmentController extends Controller
                 'time_slot' => 'required|string',
                 'status' => [
                     'required',
-                    'in:' . implode(',', Appointment::getStatusOptions()),
+                    'in:' . implode(',', $this->statusOptions),
                     function ($attribute, $value, $fail) use ($request) {
                         if ($value === 'completed' && 
                             Carbon::parse($request->date)->isAfter(now())) {
