@@ -19,11 +19,20 @@ interface User {
   email: string
 }
 
+// Define the form interface
+interface PatientFormData {
+  user_id: number | null
+  gender: string
+  dob: string
+  phone: string
+  address: string
+}
+
 const props = defineProps<{
   users: User[]
 }>()
 
-const form = ref({
+const form = ref<PatientFormData>({
   user_id: null,
   gender: '',
   dob: '',
