@@ -44,7 +44,7 @@ class AppointmentController extends Controller
         return Inertia::render('Appointments/Create', [
             'doctors' => $doctors,
             'patients' => $patients,
-            'statuses' => ['pending', 'confirmed', 'completed', 'cancelled'],
+            'statuses' => Appointment::getStatusOptions(),
             'auth' => [
                 'user' => auth()->user()
             ],
@@ -59,7 +59,7 @@ class AppointmentController extends Controller
             'patient_id' => 'required|exists:users,id',
             'date' => 'required|date|after_or_equal:today',
             'time_slot' => 'required|string',
-            'status' => 'required|in:pending,confirmed,completed,cancelled',
+            'status' => 'required|in:' . implode(',', Appointment::getStatusOptions()),
             'notes' => 'nullable|string|max:1000',
         ]);
 
@@ -99,7 +99,7 @@ class AppointmentController extends Controller
         return Inertia::render('Appointments/Edit', [
             'doctors' => $doctors,
             'patients' => $patients,
-            'statuses' => ['pending', 'confirmed', 'completed', 'cancelled'],
+            'statuses' => Appointment::getStatusOptions(),
             'appointment' => $appointment->load(['doctor', 'patient']),
             'existingAppointments' => $existingAppointments,
             'userRole' => auth()->user()->role
@@ -114,7 +114,7 @@ class AppointmentController extends Controller
         // If user is a doctor, only allow updating status and notes
         if ($user->role === 'doctor') {
             $validated = $request->validate([
-                'status' => 'required|in:pending,confirmed,completed,cancelled',
+                'status' => 'required|in:' . implode(',', Appointment::getStatusOptions()),
                 'notes' => 'nullable|string|max:1000',
             ]);
 
@@ -129,7 +129,7 @@ class AppointmentController extends Controller
                 'patient_id' => 'required|exists:users,id',
                 'date' => 'required|date|after_or_equal:today',
                 'time_slot' => 'required|string',
-                'status' => 'required|in:pending,confirmed,completed,cancelled',
+                'status' => 'required|in:' . implode(',', Appointment::getStatusOptions()),
                 'notes' => 'nullable|string|max:1000',
             ]);
         }
