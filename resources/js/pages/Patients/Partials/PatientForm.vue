@@ -21,11 +21,17 @@ import { CalendarDate, getLocalTimeZone, parseDate, today } from '@international
 import { cn } from '@/lib/utils'
 
 interface PatientFormData {
+  id?: number
   user_id: number | null
   gender: string
   dob: string
   phone: string
   address: string
+  user?: {
+    id: number
+    name: string
+    email: string
+  }
 }
 
 const props = defineProps<{

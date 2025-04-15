@@ -59,8 +59,12 @@ class PatientController extends Controller
 
     public function edit($id)
     {
-        $patient = Patient::findOrFail($id);
-        $users = User::all();
+        $patient = Patient::with('user')->findOrFail($id);
+        
+        $users = User::select('id', 'name', 'email')
+            ->where('role', '!=', 'patient')
+            ->orWhere('id', $patient->user_id)
+            ->get();
 
         return Inertia::render('Patients/Edit', [
             'patient' => $patient,
@@ -73,15 +77,16 @@ class PatientController extends Controller
         $patient = Patient::findOrFail($id);
 
         $validated = $request->validate([
-            'user_id' => 'required|exists:users,id|unique:patients,user_id,' . $patient->id,
-            'address' => 'required|string|max:255',
-            'phone' => 'required|string|max:20',
+            'user_id' => 'required|exists:users,id|unique:patient_profiles,user_id,' . $patient->id,
+            'gender' => 'required|string|in:male,female,other',
             'dob' => 'required|date',
+            'phone' => 'required|string|max:20',
+            'address' => 'required|string|max:255',
         ]);
 
         $patient->update($validated);
 
-        return redirect()->route('patients.index')->with('success', 'Patient updated successfully.');
+        return redirect()->route('patients.index');
     }
 
     public function destroy($id)
