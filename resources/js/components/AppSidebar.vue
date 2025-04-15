@@ -8,8 +8,17 @@ import { LayoutGrid, Users, BriefcaseMedical, PersonStanding, CalendarHeart   } 
 import AppLogo from './AppLogo.vue';
 import { usePage } from '@inertiajs/vue3';
 
-const { props } = usePage(); 
-const userRole = props.auth.user.role; 
+interface PageProps {
+    auth: {
+        user: {
+            role: string;
+        };
+    };
+    [key: string]: any; 
+}
+
+const { props } = usePage<PageProps>();
+const userRole = props.auth.user.role;
 
 const mainNavItems: NavItem[] = [
     {
