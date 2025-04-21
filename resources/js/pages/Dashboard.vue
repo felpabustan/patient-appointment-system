@@ -3,13 +3,24 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem, type SharedData } from '@/types';
 import { Head, usePage } from '@inertiajs/vue3';
 import PlaceholderPattern from '../components/PlaceholderPattern.vue';
-import { CalendarCheck, Stethoscope, UserRound, CheckCircle } from 'lucide-vue-next';
+import { 
+    CalendarCheck, 
+    Stethoscope, 
+    UserRound, 
+    CheckCircle,
+    Clock,
+    CalendarX,
+    CalendarClock
+} from 'lucide-vue-next';
 
 interface Stats {
     confirmedAppointments: number;
     totalDoctors?: number;
     totalPatients: number;
     completedAppointments?: number;
+    pendingAppointments: number;
+    cancelledAppointments: number;
+    todayAppointments: number;
 }
 
 interface Props {
@@ -76,7 +87,42 @@ const breadcrumbs: BreadcrumbItem[] = [
                     </div>
                 </div>
             </div>
-            <div class="relative min-h-[100vh] flex-1 rounded-xl border border-sidebar-border/70 dark:border-sidebar-border md:min-h-min">
+            <div class="relative min-h-[100vh] flex-1 rounded-xl border border-sidebar-border/70 dark:border-sidebar-border md:min-h-min p-6">
+                <h2 class="text-2xl font-semibold mb-6">Additional Statistics</h2>
+                <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                    <div class="flex flex-col gap-2 rounded-xl border border-sidebar-border/70 p-4 dark:border-sidebar-border">
+                        <div class="flex items-center gap-2">
+                            <Clock class="h-5 w-5 text-orange-600 dark:text-orange-400" />
+                            <h3 class="font-medium text-orange-700 dark:text-orange-300">Pending Appointments</h3>
+                        </div>
+                        <p class="text-2xl font-semibold text-orange-700 dark:text-orange-300">
+                            {{ stats?.pendingAppointments ?? 0 }}
+                        </p>
+                        <p class="text-sm text-orange-600 dark:text-orange-400">Awaiting confirmation</p>
+                    </div>
+
+                    <div class="flex flex-col gap-2 rounded-xl border border-sidebar-border/70 p-4 dark:border-sidebar-border">
+                        <div class="flex items-center gap-2">
+                            <CalendarX class="h-5 w-5 text-red-600 dark:text-red-400" />
+                            <h3 class="font-medium text-red-700 dark:text-red-300">Cancelled</h3>
+                        </div>
+                        <p class="text-2xl font-semibold text-red-700 dark:text-red-300">
+                            {{ stats?.cancelledAppointments ?? 0 }}
+                        </p>
+                        <p class="text-sm text-red-600 dark:text-red-400">Total cancelled appointments</p>
+                    </div>
+
+                    <div class="flex flex-col gap-2 rounded-xl border border-sidebar-border/70 p-4 dark:border-sidebar-border">
+                        <div class="flex items-center gap-2">
+                            <CalendarClock class="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
+                            <h3 class="font-medium text-indigo-700 dark:text-indigo-300">{{ isDoctor ? 'Today\'s Schedule' : 'Today\'s Appointments' }}</h3>
+                        </div>
+                        <p class="text-2xl font-semibold text-indigo-700 dark:text-indigo-300">
+                            {{ stats?.todayAppointments ?? 0 }}
+                        </p>
+                        <p class="text-sm text-indigo-600 dark:text-indigo-400">Scheduled for today</p>
+                    </div>
+                </div>
             </div>
         </div>
     </AppLayout>

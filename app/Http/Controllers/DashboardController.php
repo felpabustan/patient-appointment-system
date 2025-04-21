@@ -31,7 +31,16 @@ class DashboardController extends Controller
             $stats = [
                 'confirmedAppointments' => $appointments['confirmed'] ?? 0,
                 'completedAppointments' => $appointments['completed'] ?? 0,
-                'totalPatients' => $uniquePatients
+                'totalPatients' => $uniquePatients,
+                'pendingAppointments' => Appointment::where('doctor_id', $user->id)
+                    ->where('status', 'pending')
+                    ->count(),
+                'cancelledAppointments' => Appointment::where('doctor_id', $user->id)
+                    ->where('status', 'cancelled')
+                    ->count(),
+                'todayAppointments' => Appointment::where('doctor_id', $user->id)
+                    ->whereDate('date', today())
+                    ->count(),
             ];
         } else {
             $appointments = Appointment::selectRaw('
@@ -50,7 +59,10 @@ class DashboardController extends Controller
             $stats = [
                 'confirmedAppointments' => $appointments['confirmed'] ?? 0,
                 'totalDoctors' => $counts['doctors'],
-                'totalPatients' => $counts['patients']
+                'totalPatients' => $counts['patients'],
+                'pendingAppointments' => Appointment::where('status', 'pending')->count(),
+                'cancelledAppointments' => Appointment::where('status', 'cancelled')->count(),
+                'todayAppointments' => Appointment::whereDate('date', today())->count(),
             ];
         }
         
