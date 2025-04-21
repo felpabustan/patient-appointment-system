@@ -11,6 +11,7 @@ import {
     Settings
 } from 'lucide-vue-next';
 import PlaceholderPattern from '@/components/PlaceholderPattern.vue';
+import { type SharedData } from '@/types';
 
 const config = {
     appName: import.meta.env.VITE_APP_NAME || 'Appointment System',
@@ -70,7 +71,7 @@ const config = {
                     <span class="text-xl font-semibold">{{ config.appName }}</span>
                 </div>
                 <div class="flex items-center gap-4">
-                    <template v-if="usePage().props.auth.user">
+                    <template v-if="usePage<SharedData>().props.auth.user">
                         <Button asChild variant="outline">
                             <Link :href="route('dashboard')">Dashboard</Link>
                         </Button>
