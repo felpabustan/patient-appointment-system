@@ -91,6 +91,7 @@ export interface PatientFormData {
     id?: number
     user_id: number | null
     gender: string
+    symptoms?: string
     dob: string
     phone: string
     address: string

@@ -14,7 +14,8 @@ class PatientProfile extends Model
         'dob',
         'gender',
         'address',
-        'phone'
+        'phone',
+        'symptoms'
     ];
 
     public function user()

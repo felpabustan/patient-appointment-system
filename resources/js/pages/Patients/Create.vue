@@ -27,6 +27,7 @@ const form = ref<PatientFormData>({
   dob: '',
   phone: '',
   address: '',
+  symptoms: '',
 })
 
 function submit() {

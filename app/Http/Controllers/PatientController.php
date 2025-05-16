@@ -38,6 +38,7 @@ class PatientController extends Controller
             'phone' => 'required|string|max:20',
             'dob' => 'required|date',
             'gender' => 'required|string|in:male,female,other',
+            'symptoms' => 'nullable|string',
         ]);
 
         $patient = Patient::create($validated);
@@ -79,6 +80,7 @@ class PatientController extends Controller
         $validated = $request->validate([
             'user_id' => 'required|exists:users,id|unique:patient_profiles,user_id,' . $patient->id,
             'gender' => 'required|string|in:male,female,other',
+            'symptoms' => 'nullable|string',
             'dob' => 'required|date',
             'phone' => 'required|string|max:20',
             'address' => 'required|string|max:255',

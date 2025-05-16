@@ -30,7 +30,8 @@ const form = ref<PatientFormData>({
   dob: props.patient.dob,
   phone: props.patient.phone,
   address: props.patient.address,
-  user: props.patient.user
+  user: props.patient.user,
+  symptoms: props.patient.symptoms
 })
 
 function submit() {
